@@ -10,18 +10,18 @@ const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const REF = /^[A-Za-z0-9._/-]{1,200}$/;
 const requestWindows = new Map();
 
-function send(response, status, body, headers = {}) {
+function send(response, status, body, headers = {}, headOnly = false) {
   response.writeHead(status, { "content-type": "application/json; charset=utf-8", ...headers });
-  response.end(JSON.stringify(body, null, 2));
+  response.end(headOnly ? undefined : JSON.stringify(body, null, 2));
 }
 
-function sendHtml(response, status, body) {
+function sendHtml(response, status, body, headOnly = false) {
   response.writeHead(status, {
     "content-type": "text/html; charset=utf-8",
     "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'",
     "x-content-type-options": "nosniff",
   });
-  response.end(body);
+  response.end(headOnly ? undefined : body);
 }
 
 export function parseCompareRequest(url) {
@@ -97,14 +97,16 @@ const OPENAPI = {
 
 export const server = http.createServer(async (request, response) => {
   const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
-  if (request.method === "GET" && url.pathname === "/") {
-    return sendHtml(response, 200, landingHtml);
+  const headOnly = request.method === "HEAD";
+  const readMethod = request.method === "GET" || headOnly;
+  if (readMethod && url.pathname === "/") {
+    return sendHtml(response, 200, landingHtml, headOnly);
   }
-  if (request.method === "GET" && url.pathname === "/health") {
-    return send(response, 200, { status: "ok", service: "github-change-risk-api" });
+  if (readMethod && url.pathname === "/health") {
+    return send(response, 200, { status: "ok", service: "github-change-risk-api" }, {}, headOnly);
   }
-  if (request.method === "GET" && url.pathname === "/openapi.json") {
-    return send(response, 200, OPENAPI);
+  if (readMethod && url.pathname === "/openapi.json") {
+    return send(response, 200, OPENAPI, {}, headOnly);
   }
   if (request.method !== "GET" || url.pathname !== "/v1/github-risk-delta") {
     return send(response, 404, { error: "not found" });
