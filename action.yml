@@ -1,5 +1,5 @@
 name: GitHub Change Risk
-description: Summarize deterministic risk signals for a public GitHub compare range.
+description: Deterministic public PR-diff risk cues without an API token or code execution.
 author: Orange Vakaris
 
 inputs:

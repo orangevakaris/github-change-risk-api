@@ -1,6 +1,6 @@
 # GitHub Change Risk API
 
-`GitHub Change Risk API` returns deterministic, explainable path- and diff-content risk signals for a public GitHub compare range. It does not execute repository code, inspect private repositories, or probe deployed targets.
+`GitHub Change Risk API` returns deterministic, explainable path- and diff-content risk signals for a public GitHub compare range. Its free Action workflow does not require an API token, and the service does not execute repository code, inspect private repositories, or probe deployed targets.
 
 Licensed under [MIT](LICENSE). See [security reporting guidance](SECURITY.md) for private vulnerability reports.
 
