@@ -3,8 +3,10 @@ import { URL } from "node:url";
 import { analyzeCompare } from "./analyze.js";
 
 const PORT = Number(process.env.PORT || 4021);
+const MAX_REQUESTS_PER_MINUTE = Number(process.env.MAX_REQUESTS_PER_MINUTE || 30);
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const REF = /^[A-Za-z0-9._/-]{1,200}$/;
+const requestWindows = new Map();
 
 function send(response, status, body, headers = {}) {
   response.writeHead(status, { "content-type": "application/json; charset=utf-8", ...headers });
@@ -27,6 +29,21 @@ export function parseCompareRequest(url) {
   return { repository, base, head };
 }
 
+function isRateLimited(request) {
+  const forwarded = String(request.headers["x-forwarded-for"] || "").split(",")[0].trim();
+  const key = forwarded || request.socket.remoteAddress || "unknown";
+  const now = Date.now();
+  const windowStart = now - 60_000;
+  const timestamps = (requestWindows.get(key) || []).filter((timestamp) => timestamp >= windowStart);
+  if (timestamps.length >= MAX_REQUESTS_PER_MINUTE) {
+    requestWindows.set(key, timestamps);
+    return true;
+  }
+  timestamps.push(now);
+  requestWindows.set(key, timestamps);
+  return false;
+}
+
 async function githubCompare({ repository, base, head }) {
   const compareUrl = new URL(`https://api.github.com/repos/${repository}/compare/${encodeURIComponent(base)}...${encodeURIComponent(head)}`);
   const response = await fetch(compareUrl, {
@@ -45,6 +62,7 @@ async function githubCompare({ repository, base, head }) {
 const OPENAPI = {
   openapi: "3.1.0",
   info: { title: "GitHub Change Risk API", version: "0.1.0", description: "Deterministic risk signals for public GitHub compare ranges." },
+  servers: [{ url: "https://76.13.79.47.nip.io", description: "Rate-limited public preview" }],
   paths: {
     "/v1/github-risk-delta": {
       get: {
@@ -74,6 +92,9 @@ export const server = http.createServer(async (request, response) => {
   const query = parseCompareRequest(url);
   if (!query) {
     return send(response, 400, { error: "repo, base, and head must identify a public GitHub compare range" });
+  }
+  if (isRateLimited(request)) {
+    return send(response, 429, { error: "rate limit exceeded", retryAfterSeconds: 60 }, { "retry-after": "60" });
   }
   try {
     return send(response, 200, { repository: query.repository, ...analyzeCompare(await githubCompare(query)) });

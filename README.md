@@ -4,7 +4,7 @@
 
 ## Current status
 
-The analysis engine and HTTP interface are implemented and tested locally. Production x402 settlement and public deployment are intentionally not claimed as live yet: production settlement requires a facilitator credential and a dedicated HTTPS hostname.
+The analysis engine and HTTP interface are implemented, tested, and available as a rate-limited preview at `https://76.13.79.47.nip.io`. Production x402 settlement is intentionally not claimed as live yet: it requires a facilitator credential.
 
 ## Local use
 
@@ -13,6 +13,10 @@ npm test
 npm start
 curl 'http://127.0.0.1:4021/v1/github-risk-delta?repo=owner/repo&base=main&head=feature-branch'
 ```
+
+The preview endpoint has the same routes over HTTPS. It is capped at 30 compare requests per client per minute and is provided for evaluation only while settlement is being configured.
+
+OpenAPI discovery document: `https://76.13.79.47.nip.io/openapi.json`
 
 Endpoints:
 
