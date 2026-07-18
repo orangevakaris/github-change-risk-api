@@ -52,7 +52,7 @@ runs:
           endpoint="$endpoint/full"
           args+=(--data-urlencode "paymentTx=$PAYMENT_TX")
         fi
-        report="$(curl --fail-with-body --silent --show-error "${args[@]}" "$endpoint")"
+        report="$(curl --fail-with-body --silent --show-error --connect-timeout 10 --max-time 45 --retry 2 --retry-all-errors "${args[@]}" "$endpoint")"
         score="$(jq -er '.risk.score' <<<"$report")"
         level="$(jq -er '.risk.level' <<<"$report")"
         compact="$(jq -c . <<<"$report")"
