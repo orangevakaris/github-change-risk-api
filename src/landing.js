@@ -37,9 +37,10 @@ export const landingHtml = `<!doctype html>
       <div class="grid">
         <section><div class="tag">01 / output</div><h2>Useful triage data.</h2><p>Scores and names signals around access control, funds and contracts, deployment, dependencies, migrations, CI, change size, and test coverage.</p></section>
         <section><div class="tag">02 / boundary</div><h2>Not an audit.</h2><p>A low score does not mean safe. This is a fast, path-and-metadata-based starting point for review, not a security certification.</p></section>
-        <section><div class="tag">03 / access</div><h2>Preview is open.</h2><p>Public GitHub comparisons only. The preview is rate-limited to 30 requests per client per minute while Base-USDC settlement is being configured.</p></section>
+        <section><div class="tag">03 / access</div><h2>Preview is open.</h2><p>Public GitHub comparisons only. The summary preview is rate-limited to 30 requests per client per minute. Full per-file reports are available for 0.01 USDC on Base.</p></section>
       </div>
       <section class="call"><div class="tag">Try it</div><h2>Compare two public refs.</h2><code>GET /v1/github-risk-delta?repo=OWNER/REPOSITORY&amp;base=REF&amp;head=REF</code><p><a href="/openapi.json">OpenAPI document</a> · <a href="https://github.com/orangevakaris/github-change-risk-api">Source and limits</a></p></section>
+      <section class="call"><div class="tag">Full report / 0.01 USDC</div><h2>Get per-file risk tags.</h2><p>Send at least 0.01 native USDC on Base to <code>0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7</code>. After three confirmations, add the transaction hash as <code>paymentTx</code> to the full-report route. One payment funds one report.</p><code>GET /v1/github-risk-delta/full?repo=OWNER/REPOSITORY&amp;base=REF&amp;head=REF&amp;paymentTx=0x...</code><p><a href="/pricing">Payment requirements</a></p></section>
       <footer>Preview endpoint. Output is deterministic and explainable; it is not investment, security, or compliance advice.</footer>
     </main>
   </body>

@@ -58,6 +58,10 @@ function uniqueSignals(files) {
   }));
 }
 
+export function fileRiskTags(filename) {
+  return RULES.filter((rule) => rule.pattern.test(String(filename || ""))).map((rule) => rule.id);
+}
+
 export function analyzeCompare(compare) {
   const files = Array.isArray(compare.files) ? compare.files : [];
   const signals = uniqueSignals(files);
@@ -95,5 +99,19 @@ export function analyzeCompare(compare) {
       "The API does not execute repository code or probe deployed targets.",
       "A low score does not establish that a change is safe.",
     ],
+  };
+}
+
+export function fullCompareReport(compare) {
+  return {
+    ...analyzeCompare(compare),
+    files: (Array.isArray(compare.files) ? compare.files : []).map((file) => ({
+      filename: String(file.filename || ""),
+      status: String(file.status || "unknown"),
+      additions: Number(file.additions || 0),
+      deletions: Number(file.deletions || 0),
+      changes: Number(file.changes || 0),
+      riskTags: fileRiskTags(file.filename),
+    })),
   };
 }

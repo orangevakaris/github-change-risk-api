@@ -18,6 +18,16 @@ The preview endpoint has the same routes over HTTPS. It is capped at 30 compare 
 
 OpenAPI discovery document: `https://76.13.79.47.nip.io/openapi.json`
 
+## Full report payment
+
+The free route returns an aggregate risk summary. The paid full-report route adds per-file statuses, change counts, and named risk tags:
+
+```text
+GET /v1/github-risk-delta/full?repo=OWNER/REPOSITORY&base=REF&head=REF&paymentTx=0x...
+```
+
+Send at least `0.01` native USDC on Base to `0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7`, wait for three confirmations, then supply its transaction hash as `paymentTx`. Each transaction pays for one full report and is permanently consumed after a successful delivery. Use `GET /pricing` for machine-readable payment requirements.
+
 Endpoints:
 
 - `GET /health`

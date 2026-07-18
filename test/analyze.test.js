@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { analyzeCompare } from "../src/analyze.js";
+import { analyzeCompare, fullCompareReport } from "../src/analyze.js";
 
 test("scores access, funds, deployment, and large untested changes", () => {
   const report = analyzeCompare({
@@ -36,4 +36,11 @@ test("keeps documentation-only changes low risk", () => {
   assert.equal(report.risk.score, 0);
   assert.equal(report.risk.level, "low");
   assert.equal(report.risk.signals.length, 0);
+});
+
+test("includes per-file risk tags in a full report", () => {
+  const report = fullCompareReport({
+    files: [{ filename: "src/auth/session.js", status: "modified", additions: 4, deletions: 1, changes: 5 }],
+  });
+  assert.deepEqual(report.files, [{ filename: "src/auth/session.js", status: "modified", additions: 4, deletions: 1, changes: 5, riskTags: ["auth-access"] }]);
 });
