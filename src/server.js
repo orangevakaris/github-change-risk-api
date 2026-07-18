@@ -1,5 +1,5 @@
 import http from "node:http";
-import { chmodSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, chmodSync, readFileSync, writeFileSync } from "node:fs";
 import { URL } from "node:url";
 import { analyzeCompare, fullCompareReport } from "./analyze.js";
 import { landingHtml } from "./landing.js";
@@ -14,6 +14,7 @@ const requestWindows = new Map();
 const FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#16201f"/><path d="M14 18h36v8H22v10h23v8H22v12h-8z" fill="#d7edaa"/><circle cx="50" cy="46" r="6" fill="#d5532f"/></svg>';
 const BASE_RPC = "https://mainnet.base.org";
 const PAYMENT_STATE_PATH = "/root/.github-change-risk-api-payments.json";
+const DELIVERY_LOG_PATH = "/root/.github-change-risk-api-deliveries.jsonl";
 
 function send(response, status, body, headers = {}, headOnly = false) {
   response.writeHead(status, { "content-type": "application/json; charset=utf-8", ...headers });
@@ -89,6 +90,15 @@ function loadConsumedPayments() {
 function saveConsumedPayments(transactions) {
   writeFileSync(PAYMENT_STATE_PATH, `${JSON.stringify({ transactions }, null, 2)}\n`, { mode: 0o600 });
   chmodSync(PAYMENT_STATE_PATH, 0o600);
+}
+
+function recordDelivery({ repository, base, head, paymentHash }) {
+  appendFileSync(
+    DELIVERY_LOG_PATH,
+    `${JSON.stringify({ deliveredAt: new Date().toISOString(), repository, base, head, paymentHash })}\n`,
+    { mode: 0o600 },
+  );
+  chmodSync(DELIVERY_LOG_PATH, 0o600);
 }
 
 const payments = createPaymentVerifier({ rpc: baseRpc, consumed: loadConsumedPayments(), persist: saveConsumedPayments });
@@ -191,8 +201,10 @@ export const server = http.createServer(async (request, response) => {
     if (reservation.status !== "reserved") return send(response, 402, { error: "payment has not been verified and confirmed", payment: paymentInstructions() });
     try {
       const comparison = await githubCompare(query);
+      const report = fullCompareReport(comparison);
+      recordDelivery({ ...query, paymentHash: reservation.hash });
       payments.consume(reservation.hash);
-      return send(response, 200, { repository: query.repository, paid: true, ...fullCompareReport(comparison) });
+      return send(response, 200, { repository: query.repository, paid: true, ...report });
     } catch (error) {
       payments.release(reservation.hash);
       return send(response, 502, { error: "comparison unavailable", detail: error.message });
