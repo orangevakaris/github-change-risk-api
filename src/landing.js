@@ -53,15 +53,15 @@ export const landingHtml = `<!doctype html>
       <div class="grid">
         <section><div class="tag">01 / output</div><h2>Useful triage data.</h2><p>Scores and names signals around access control, funds and contracts, deployment, dependencies, migrations, CI, change size, test coverage, and review-sensitive diff patterns.</p></section>
         <section><div class="tag">02 / boundary</div><h2>Not an audit.</h2><p>A low score does not mean safe. This is a fast, path-and-diff based starting point for review, not a security certification.</p></section>
-        <section><div class="tag">03 / access</div><h2>Preview is open.</h2><p>Public GitHub comparisons only. The summary preview is rate-limited to 30 requests per client per minute. Full per-file reports are available for 0.01 USDC on Base.</p></section>
+        <section><div class="tag">03 / access</div><h2>Preview is open.</h2><p>Public GitHub comparisons only. The summary preview is rate-limited to 30 requests per client per minute. Full per-file reports accept 0.01 USDC or 0.00001 ETH on Base.</p></section>
       </div>
-      <section class="call"><div class="tag">Try it</div><h2>Compare two public refs.</h2><p>Enter a public repository and two refs to get an aggregate preview. Nothing is cloned or executed.</p><form class="try-form" id="compare-form"><label>Repository<input id="repository" name="repository" placeholder="owner/repository" pattern="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+" required></label><label>Base ref<input id="base" name="base" placeholder="main" pattern="[A-Za-z0-9._/-]{1,200}" required></label><label>Head ref<input id="head" name="head" placeholder="feature-branch" pattern="[A-Za-z0-9._/-]{1,200}" required></label><button id="compare-button" type="submit">Analyze</button></form><p class="result-status" id="result-status" aria-live="polite">Free preview. Public repositories only.</p><pre class="result" id="result" hidden></pre><div class="unlock" id="unlock" hidden><div class="tag">Per-file report / 0.01 USDC</div><p>1. <a class="payment-link" id="payment-link" href="#">Send the exact Base-USDC payment</a> in a compatible wallet. 2. Wait for three confirmations. 3. Paste that transaction hash below.</p><form class="unlock-form" id="full-form"><label>Confirmed transaction hash<input id="payment-tx" name="payment-tx" placeholder="0x..." pattern="0x[a-fA-F0-9]{64}" required></label><button id="full-button" type="submit">Unlock report</button></form></div><code>GET /v1/github-risk-delta?repo=OWNER/REPOSITORY&amp;base=REF&amp;head=REF</code><p><a href="/openapi.json">OpenAPI document</a> · <a href="https://github.com/orangevakaris/github-change-risk-api">Source and limits</a></p></section>
+      <section class="call"><div class="tag">Try it</div><h2>Compare two public refs.</h2><p>Enter a public repository and two refs to get an aggregate preview. Nothing is cloned or executed.</p><form class="try-form" id="compare-form"><label>Repository<input id="repository" name="repository" placeholder="owner/repository" pattern="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+" required></label><label>Base ref<input id="base" name="base" placeholder="main" pattern="[A-Za-z0-9._/-]{1,200}" required></label><label>Head ref<input id="head" name="head" placeholder="feature-branch" pattern="[A-Za-z0-9._/-]{1,200}" required></label><button id="compare-button" type="submit">Analyze</button></form><p class="result-status" id="result-status" aria-live="polite">Free preview. Public repositories only.</p><pre class="result" id="result" hidden></pre><div class="unlock" id="unlock" hidden><div class="tag">Per-file report / Base payment</div><p>1. Send either <a class="payment-link" id="payment-link" href="#">0.01 USDC</a> or <a class="payment-link" id="native-eth-payment-link" href="#">0.00001 ETH</a> on Base in a compatible wallet. 2. Wait for three confirmations. 3. Paste that transaction hash below.</p><form class="unlock-form" id="full-form"><label>Confirmed transaction hash<input id="payment-tx" name="payment-tx" placeholder="0x..." pattern="0x[a-fA-F0-9]{64}" required></label><button id="full-button" type="submit">Unlock report</button></form></div><code>GET /v1/github-risk-delta?repo=OWNER/REPOSITORY&amp;base=REF&amp;head=REF</code><p><a href="/openapi.json">OpenAPI document</a> · <a href="https://github.com/orangevakaris/github-change-risk-api">Source and limits</a></p></section>
       <section class="call"><div class="tag">Workflow / free</div><h2>Put the preview in a pull request workflow.</h2><p>The installable Action writes the score, level, and compact report to workflow outputs and the job summary.</p><code>- uses: orangevakaris/github-change-risk@v1
   with:
     repository: \${{ github.repository }}
     base: \${{ github.event.pull_request.base.sha }}
     head: \${{ github.event.pull_request.head.sha }}</code><p><a href="https://github.com/orangevakaris/github-change-risk">Install the GitHub Action</a></p></section>
-      <section class="call"><div class="tag">Full report / 0.01 USDC</div><h2>Get per-file review cues.</h2><p>Send at least 0.01 native USDC on Base to <code>0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7</code>. <a href="ethereum:0x833589fCD6EDb6E08f4c7C32D4f71b54bda02913@8453/transfer?address=0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7&amp;uint256=10000">Open a pre-filled USDC transfer</a> in a compatible wallet and confirm the destination. After three confirmations, add the transaction hash as <code>paymentTx</code> to the full-report route. One payment funds one report.</p><code>GET /v1/github-risk-delta/full?repo=OWNER/REPOSITORY&amp;base=REF&amp;head=REF&amp;paymentTx=0x...</code><p><a href="/pricing">Payment requirements</a></p></section>
+      <section class="call"><div class="tag">Full report / Base</div><h2>Get per-file review cues.</h2><p>Send at least 0.01 native USDC or 0.00001 ETH on Base to <code>0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7</code>. <a href="ethereum:0x833589fCD6EDb6E08f4c7C32D4f71b54bda02913@8453/transfer?address=0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7&amp;uint256=10000">Open a pre-filled USDC transfer</a> or <a href="ethereum:0x5157e1783c81da37daa8bb490c68b30ab0e9d3a7@8453?value=1e13">open a pre-filled ETH transfer</a> in a compatible wallet and confirm the destination. After three confirmations, add the transaction hash as <code>paymentTx</code> to the full-report route. One payment funds one report.</p><code>GET /v1/github-risk-delta/full?repo=OWNER/REPOSITORY&amp;base=REF&amp;head=REF&amp;paymentTx=0x...</code><p><a href="/pricing">Payment requirements</a></p></section>
       <footer>Preview endpoint. Preview and payment-step event payloads omit repository and ref values. Public bots are directed to this page and away from live report routes. Output is deterministic and explainable; it is not investment, security, or compliance advice.</footer>
     </main>
     <script>
@@ -71,6 +71,7 @@ export const landingHtml = `<!doctype html>
       const fullButton = document.querySelector("#full-button");
       const unlock = document.querySelector("#unlock");
       const paymentLink = document.querySelector("#payment-link");
+      const nativeEthPaymentLink = document.querySelector("#native-eth-payment-link");
       const status = document.querySelector("#result-status");
       const result = document.querySelector("#result");
       let activeParams;
@@ -99,6 +100,7 @@ export const landingHtml = `<!doctype html>
           activeParams = params;
           showReport(payload);
           paymentLink.href = payload.upgrade.payment.paymentLink;
+          nativeEthPaymentLink.href = payload.upgrade.payment.nativeEth.paymentLink;
           unlock.hidden = false;
           recordEvent("preview-ready");
           status.textContent = "Preview ready. Use the connected payment and unlock flow below for the per-file report.";
@@ -109,6 +111,7 @@ export const landingHtml = `<!doctype html>
         }
       });
       paymentLink.addEventListener("click", () => recordEvent("payment-intent"));
+      nativeEthPaymentLink.addEventListener("click", () => recordEvent("payment-intent"));
       fullForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         if (!activeParams) return;

@@ -260,7 +260,7 @@ export const server = http.createServer(async (request, response) => {
       repository: query.repository,
       ...analyzeCompare(await githubCompare(query)),
       upgrade: {
-        fullReportPrice: "0.01 USDC on Base",
+        fullReportPrice: "0.01 USDC or 0.00001 ETH on Base",
         pricing: new URL("/pricing", externalOrigin).toString(),
         fullReport: fullEndpoint.toString(),
         payment: paymentInstructions(),
