@@ -43,7 +43,7 @@ The free route returns an aggregate risk summary and a machine-readable `upgrade
 GET /v1/github-risk-delta/full?repo=OWNER/REPOSITORY&base=REF&head=REF&paymentTx=0x...
 ```
 
-Send at least `0.01` native USDC on Base to `0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7`, wait for three confirmations, then supply its transaction hash as `paymentTx`. Each transaction pays for one full report and is permanently consumed after a successful delivery. Use `GET /pricing` for machine-readable payment requirements.
+Send at least `0.01` native USDC on Base to `0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7`, wait for three confirmations, then supply its transaction hash as `paymentTx`. Wallets that support payment links can use this [pre-filled Base-USDC transfer](ethereum:0x833589fCD6EDb6E08f4c7C32D4f71b54bda02913@8453/transfer?address=0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7&uint256=10000). Each transaction pays for one full report and is permanently consumed after a successful delivery. Use `GET /pricing` for machine-readable payment requirements.
 
 Endpoints:
 
