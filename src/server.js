@@ -156,7 +156,9 @@ const OPENAPI = {
 };
 
 export const server = http.createServer(async (request, response) => {
-  const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
+  const externalProtocol = request.headers["x-forwarded-proto"] === "https" ? "https" : "http";
+  const externalOrigin = `${externalProtocol}://${request.headers.host || "localhost"}`;
+  const url = new URL(request.url || "/", externalOrigin);
   const headOnly = request.method === "HEAD";
   const readMethod = request.method === "GET" || headOnly;
   if (readMethod && url.pathname === "/") {
@@ -211,7 +213,20 @@ export const server = http.createServer(async (request, response) => {
     }
   }
   try {
-    return send(response, 200, { repository: query.repository, ...analyzeCompare(await githubCompare(query)) });
+    const fullEndpoint = new URL("/v1/github-risk-delta/full", externalOrigin);
+    fullEndpoint.searchParams.set("repo", query.repository);
+    fullEndpoint.searchParams.set("base", query.base);
+    fullEndpoint.searchParams.set("head", query.head);
+    fullEndpoint.searchParams.set("paymentTx", "0x...");
+    return send(response, 200, {
+      repository: query.repository,
+      ...analyzeCompare(await githubCompare(query)),
+      upgrade: {
+        fullReportPrice: "0.01 USDC on Base",
+        pricing: new URL("/pricing", externalOrigin).toString(),
+        fullReport: fullEndpoint.toString(),
+      },
+    });
   } catch (error) {
     return send(response, 502, { error: "comparison unavailable", detail: error.message });
   }

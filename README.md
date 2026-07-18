@@ -35,7 +35,7 @@ OpenAPI discovery document: `https://76.13.79.47.nip.io/openapi.json`
 
 ## Full report payment
 
-The free route returns an aggregate risk summary. The paid full-report route adds per-file statuses, change counts, and named risk tags:
+The free route returns an aggregate risk summary and a machine-readable `upgrade` object pointing to the paid route. The paid full-report route adds per-file statuses, change counts, and named risk tags:
 
 ```text
 GET /v1/github-risk-delta/full?repo=OWNER/REPOSITORY&base=REF&head=REF&paymentTx=0x...
