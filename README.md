@@ -1,6 +1,6 @@
 # GitHub Change Risk API
 
-`GitHub Change Risk API` returns deterministic, explainable risk signals for a public GitHub compare range. It does not execute repository code, inspect private repositories, or probe deployed targets.
+`GitHub Change Risk API` returns deterministic, explainable path- and diff-content risk signals for a public GitHub compare range. It does not execute repository code, inspect private repositories, or probe deployed targets.
 
 Licensed under [MIT](LICENSE). See [security reporting guidance](SECURITY.md) for private vulnerability reports.
 
@@ -37,7 +37,7 @@ OpenAPI discovery document: `https://76.13.79.47.nip.io/openapi.json`
 
 ## Full report payment
 
-The free route returns an aggregate risk summary and a machine-readable `upgrade` object pointing to the paid route. The paid full-report route adds per-file statuses, change counts, and named risk tags:
+The free route returns an aggregate risk summary and a machine-readable `upgrade` object pointing to the paid route. The paid full-report route adds per-file statuses, change counts, named risk tags, and counts of matching diff-content cues:
 
 ```text
 GET /v1/github-risk-delta/full?repo=OWNER/REPOSITORY&base=REF&head=REF&paymentTx=0x...
@@ -53,7 +53,7 @@ Endpoints:
 
 ## Output
 
-The response reports changed-file counts, additions/deletions, a 0-100 heuristic score, named path-based signals, and limitations. Signals cover access control, funds and contracts, deployment and CI, dependency manifests, migrations, unusually large changes, and changes with little test-file coverage.
+The response reports changed-file counts, additions/deletions, a 0-100 heuristic score, named path- and diff-content signals, and limitations. Signals cover access control, funds and contracts, deployment and CI, dependency manifests, migrations, unusually large changes, changes with little test-file coverage, removed authorization guards, privileged CI configuration, command-execution primitives, dependency lifecycle scripts, privileged smart-contract operations, and removed tests.
 
 This is triage data, not an audit or security certification. A low score does not establish that a change is safe.
 

@@ -40,7 +40,40 @@ test("keeps documentation-only changes low risk", () => {
 
 test("includes per-file risk tags in a full report", () => {
   const report = fullCompareReport({
-    files: [{ filename: "src/auth/session.js", status: "modified", additions: 4, deletions: 1, changes: 5 }],
+    files: [{ filename: "src/auth/session.js", status: "modified", additions: 4, deletions: 1, changes: 5, patch: "- requireAuth(request)" }],
   });
-  assert.deepEqual(report.files, [{ filename: "src/auth/session.js", status: "modified", additions: 4, deletions: 1, changes: 5, riskTags: ["auth-access"] }]);
+  assert.deepEqual(report.files, [{
+    filename: "src/auth/session.js",
+    status: "modified",
+    additions: 4,
+    deletions: 1,
+    changes: 5,
+    riskTags: ["auth-access", "auth-control-removed"],
+    diffSignals: [{ id: "auth-control-removed", direction: "removed", matchingLines: 1 }],
+  }]);
+});
+
+test("adds explainable signals for risky diff content", () => {
+  const report = fullCompareReport({
+    files: [
+      { filename: ".github/workflows/release.yml", patch: "+ pull_request_target:\n+ permissions: write-all" },
+      { filename: "src/run.js", patch: "+ exec(input)" },
+      { filename: "package.json", patch: "+ \"postinstall\": \"node setup.js\"" },
+      { filename: "contracts/Vault.sol", patch: "+ target.delegatecall(data);" },
+      { filename: "test/behavior.test.js", patch: "- expect(response.status).toBe(401)" },
+    ],
+  });
+  assert.deepEqual(report.risk.signals.map((signal) => signal.id), [
+    "deployment",
+    "ci",
+    "privileged-ci-context",
+    "unsafe-command-execution",
+    "dependency",
+    "dependency-lifecycle-script",
+    "funds-contracts",
+    "privileged-contract-operation",
+    "test-case-removed",
+  ]);
+  assert.deepEqual(report.files[0].diffSignals, [{ id: "privileged-ci-context", direction: "added", matchingLines: 2 }]);
+  assert.deepEqual(report.files[4].riskTags, ["test-case-removed"]);
 });
