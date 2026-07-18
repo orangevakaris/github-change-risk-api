@@ -28,7 +28,7 @@ function send(response, status, body, headers = {}, headOnly = false) {
 function sendHtml(response, status, body, headOnly = false) {
   response.writeHead(status, {
     "content-type": "text/html; charset=utf-8",
-    "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'",
+    "content-security-policy": "default-src 'none'; connect-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'self'",
     "x-content-type-options": "nosniff",
   });
   response.end(headOnly ? undefined : body);

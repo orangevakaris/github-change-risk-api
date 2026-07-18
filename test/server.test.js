@@ -20,6 +20,10 @@ test("allows browser reads on public routes", async (context) => {
   const health = await fetch(`http://127.0.0.1:${port}/health`);
   assert.equal(health.headers.get("access-control-allow-origin"), "*");
 
+  const landing = await fetch(`http://127.0.0.1:${port}/`);
+  assert.match(landing.headers.get("content-security-policy"), /connect-src 'self'/);
+  assert.match(landing.headers.get("content-security-policy"), /script-src 'unsafe-inline'/);
+
   const preflight = await fetch(`http://127.0.0.1:${port}/v1/github-risk-delta`, { method: "OPTIONS" });
   assert.equal(preflight.status, 204);
   assert.equal(preflight.headers.get("access-control-allow-methods"), "GET, HEAD, OPTIONS");

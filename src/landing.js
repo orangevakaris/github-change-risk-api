@@ -25,8 +25,16 @@ export const landingHtml = `<!doctype html>
       code { background: rgba(22, 32, 31, .1); font-family: monospace; font-size: .82rem; overflow-wrap: anywhere; padding: 3px 5px; }
       .call code { background: #293734; color: #dcf5ad; display: block; line-height: 1.5; margin-top: 12px; padding: 12px; white-space: pre-wrap; }
       a { color: var(--accent); font-weight: 700; }
+      .try-form { display: grid; gap: 12px; grid-template-columns: 2fr 1fr 1fr auto; margin-top: 18px; }
+      label { color: var(--muted); display: grid; font-family: monospace; font-size: 11px; gap: 6px; letter-spacing: .08em; text-transform: uppercase; }
+      input { background: #fbf8f0; border: 1px solid var(--line); border-radius: 0; color: var(--ink); font: inherit; min-width: 0; padding: 10px; }
+      button { align-self: end; background: var(--accent); border: 1px solid var(--accent); color: #fff9ed; cursor: pointer; font: 700 12px monospace; letter-spacing: .06em; min-height: 40px; padding: 10px 14px; text-transform: uppercase; }
+      button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #dcf5ad; outline-offset: 3px; }
+      button:disabled { cursor: wait; opacity: .7; }
+      .result-status { font-family: monospace; font-size: .82rem; line-height: 1.5; margin: 14px 0 0; }
+      .result { background: #293734; color: #dcf5ad; font: .78rem/1.5 monospace; margin: 12px 0 0; max-height: 420px; overflow: auto; padding: 14px; white-space: pre-wrap; }
       footer { color: var(--muted); font-family: monospace; font-size: 11px; line-height: 1.6; padding-top: 28px; }
-      @media (max-width: 700px) { header { align-items: flex-start; flex-direction: column; gap: 8px; } .grid { grid-template-columns: 1fr; } section + section { border-left: 0; border-top: 1px solid var(--line); } section { min-height: auto; } }
+      @media (max-width: 700px) { header { align-items: flex-start; flex-direction: column; gap: 8px; } .grid, .try-form { grid-template-columns: 1fr; } section + section { border-left: 0; border-top: 1px solid var(--line); } section { min-height: auto; } }
     </style>
   </head>
   <body>
@@ -39,9 +47,39 @@ export const landingHtml = `<!doctype html>
         <section><div class="tag">02 / boundary</div><h2>Not an audit.</h2><p>A low score does not mean safe. This is a fast, path-and-diff based starting point for review, not a security certification.</p></section>
         <section><div class="tag">03 / access</div><h2>Preview is open.</h2><p>Public GitHub comparisons only. The summary preview is rate-limited to 30 requests per client per minute. Full per-file reports are available for 0.01 USDC on Base.</p></section>
       </div>
-      <section class="call"><div class="tag">Try it</div><h2>Compare two public refs.</h2><code>GET /v1/github-risk-delta?repo=OWNER/REPOSITORY&amp;base=REF&amp;head=REF</code><p><a href="/openapi.json">OpenAPI document</a> · <a href="https://github.com/orangevakaris/github-change-risk-api">Source and limits</a></p></section>
+      <section class="call"><div class="tag">Try it</div><h2>Compare two public refs.</h2><p>Enter a public repository and two refs to get an aggregate preview. Nothing is cloned or executed.</p><form class="try-form" id="compare-form"><label>Repository<input id="repository" name="repository" placeholder="owner/repository" pattern="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+" required></label><label>Base ref<input id="base" name="base" placeholder="main" pattern="[A-Za-z0-9._/-]{1,200}" required></label><label>Head ref<input id="head" name="head" placeholder="feature-branch" pattern="[A-Za-z0-9._/-]{1,200}" required></label><button id="compare-button" type="submit">Analyze</button></form><p class="result-status" id="result-status" aria-live="polite">Free preview. Public repositories only.</p><pre class="result" id="result" hidden></pre><code>GET /v1/github-risk-delta?repo=OWNER/REPOSITORY&amp;base=REF&amp;head=REF</code><p><a href="/openapi.json">OpenAPI document</a> · <a href="https://github.com/orangevakaris/github-change-risk-api">Source and limits</a></p></section>
       <section class="call"><div class="tag">Full report / 0.01 USDC</div><h2>Get per-file review cues.</h2><p>Send at least 0.01 native USDC on Base to <code>0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7</code>. <a href="ethereum:0x833589fCD6EDb6E08f4c7C32D4f71b54bda02913@8453/transfer?address=0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7&amp;uint256=10000">Open a pre-filled USDC transfer</a> in a compatible wallet and confirm the destination. After three confirmations, add the transaction hash as <code>paymentTx</code> to the full-report route. One payment funds one report.</p><code>GET /v1/github-risk-delta/full?repo=OWNER/REPOSITORY&amp;base=REF&amp;head=REF&amp;paymentTx=0x...</code><p><a href="/pricing">Payment requirements</a></p></section>
       <footer>Preview endpoint. Output is deterministic and explainable; it is not investment, security, or compliance advice.</footer>
     </main>
+    <script>
+      const form = document.querySelector("#compare-form");
+      const button = document.querySelector("#compare-button");
+      const status = document.querySelector("#result-status");
+      const result = document.querySelector("#result");
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const values = new FormData(form);
+        const params = new URLSearchParams({
+          repo: values.get("repository").trim(),
+          base: values.get("base").trim(),
+          head: values.get("head").trim(),
+        });
+        button.disabled = true;
+        result.hidden = true;
+        status.textContent = "Analyzing the public compare range...";
+        try {
+          const response = await fetch("/v1/github-risk-delta?" + params);
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.error || "Preview request failed");
+          result.textContent = JSON.stringify({ comparison: payload.comparison, risk: payload.risk, limitations: payload.limitations }, null, 2);
+          result.hidden = false;
+          status.textContent = "Preview ready. The per-file report is available after a confirmed 0.01 USDC Base payment.";
+        } catch (error) {
+          status.textContent = "Preview unavailable: " + error.message;
+        } finally {
+          button.disabled = false;
+        }
+      });
+    </script>
   </body>
 </html>`;
