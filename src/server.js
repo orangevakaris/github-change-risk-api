@@ -17,7 +17,11 @@ const PAYMENT_STATE_PATH = "/root/.github-change-risk-api-payments.json";
 const DELIVERY_LOG_PATH = "/root/.github-change-risk-api-deliveries.jsonl";
 
 function send(response, status, body, headers = {}, headOnly = false) {
-  response.writeHead(status, { "content-type": "application/json; charset=utf-8", ...headers });
+  response.writeHead(status, {
+    "content-type": "application/json; charset=utf-8",
+    "access-control-allow-origin": "*",
+    ...headers,
+  });
   response.end(headOnly ? undefined : JSON.stringify(body, null, 2));
 }
 
@@ -161,6 +165,14 @@ export const server = http.createServer(async (request, response) => {
   const url = new URL(request.url || "/", externalOrigin);
   const headOnly = request.method === "HEAD";
   const readMethod = request.method === "GET" || headOnly;
+  if (request.method === "OPTIONS") {
+    response.writeHead(204, {
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "GET, HEAD, OPTIONS",
+      "access-control-max-age": "86400",
+    });
+    return response.end();
+  }
   if (readMethod && url.pathname === "/") {
     return sendHtml(response, 200, landingHtml, headOnly);
   }

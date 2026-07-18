@@ -31,7 +31,7 @@ Run the free summary report from a workflow without an API key:
 
 The action writes the score, level, and compact JSON report to outputs and adds a readable report to the workflow summary. Supply the optional `payment-tx` input only after sending a confirmed Base-USDC payment to request the per-file full report.
 
-The preview endpoint has the same routes over HTTPS. It is capped at 30 compare requests per client per minute and provides an aggregate report; the paid route returns the per-file report.
+The preview endpoint has the same routes over HTTPS. It supports browser reads with permissive CORS, is capped at 30 compare requests per client per minute, and provides an aggregate report; the paid route returns the per-file report.
 
 OpenAPI discovery document: `https://76.13.79.47.nip.io/openapi.json`
 
