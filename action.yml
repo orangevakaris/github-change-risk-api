@@ -13,6 +13,10 @@ inputs:
   head:
     description: Head commit SHA or ref.
     required: true
+  fail-on:
+    description: "Fail at or above this risk level: never, low, medium, or high."
+    required: false
+    default: "never"
   payment-tx:
     description: Optional confirmed Base USDC or ETH transaction hash for a per-file report.
     required: false
@@ -62,12 +66,20 @@ runs:
         REPOSITORY: ${{ inputs.repository }}
         BASE: ${{ inputs.base }}
         HEAD: ${{ inputs.head }}
+        FAIL_ON: ${{ inputs.fail-on }}
         PAYMENT_TX: ${{ inputs.payment-tx }}
         COMMENT: ${{ inputs.comment }}
         GH_TOKEN: ${{ inputs.github-token }}
         PULL_REQUEST_NUMBER: ${{ inputs.pull-request-number }}
       run: |
         set -euo pipefail
+        case "$FAIL_ON" in
+          never) fail_threshold=3 ;;
+          low) fail_threshold=0 ;;
+          medium) fail_threshold=1 ;;
+          high) fail_threshold=2 ;;
+          *) echo "fail-on must be never, low, medium, or high" >&2; exit 1 ;;
+        esac
         endpoint="$API_URL/v1/github-risk-delta"
         args=(--get --data-urlencode "repo=$REPOSITORY" --data-urlencode "base=$BASE" --data-urlencode "head=$HEAD")
         if [ -n "$PAYMENT_TX" ]; then
@@ -109,4 +121,14 @@ runs:
           fi
           comment_body="$(printf '## GitHub Change Risk\n\n- Score: **%s / 100**\n- Level: **%s**\n\n```json\n%s\n```' "$score" "$level" "$(jq -c '{comparison, risk}' <<<"$report")")"
           gh api --method POST "repos/$REPOSITORY/issues/$PULL_REQUEST_NUMBER/comments" -f body="$comment_body" >/dev/null
+        fi
+        case "$level" in
+          low) risk_rank=0 ;;
+          medium) risk_rank=1 ;;
+          high) risk_rank=2 ;;
+          *) echo "API returned an unsupported risk level" >&2; exit 1 ;;
+        esac
+        if [ "$risk_rank" -ge "$fail_threshold" ]; then
+          echo "Risk level $level meets fail-on threshold $FAIL_ON" >&2
+          exit 1
         fi

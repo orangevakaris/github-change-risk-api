@@ -27,3 +27,14 @@ jobs:
           test "$SCORE" = "0"
           test "$LEVEL" = "low"
           test "$CHECKOUT_URL" = "https://76.13.79.47.nip.io/?repo=octocat%2FHello-World&base=master&head=master"
+      - id: gate
+        continue-on-error: true
+        uses: ./
+        with:
+          repository: octocat/Hello-World
+          base: master
+          head: master
+          fail-on: low
+      - env:
+          OUTCOME: ${{ steps.gate.outcome }}
+        run: test "$OUTCOME" = "failure"
