@@ -21,7 +21,7 @@ curl 'http://127.0.0.1:4021/v1/github-risk-delta?repo=owner/repo&base=main&head=
 Run the free summary report from a workflow without an API key:
 
 ```yaml
-- uses: orangevakaris/github-change-risk-api@v1
+- uses: orangevakaris/github-change-risk@v1
   id: change-risk
   with:
     repository: ${{ github.repository }}
