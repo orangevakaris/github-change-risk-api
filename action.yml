@@ -1,0 +1,73 @@
+name: GitHub Change Risk
+description: Fetch deterministic risk signals for a public GitHub compare range.
+author: Orange Vakaris
+
+inputs:
+  repository:
+    description: Public GitHub repository in owner/repository form.
+    required: true
+    default: ${{ github.repository }}
+  base:
+    description: Base commit SHA or ref.
+    required: true
+  head:
+    description: Head commit SHA or ref.
+    required: true
+  payment-tx:
+    description: Optional confirmed Base-USDC transaction hash for a paid full report.
+    required: false
+    default: ""
+  api-url:
+    description: Base URL for the GitHub Change Risk API.
+    required: false
+    default: https://76.13.79.47.nip.io
+
+outputs:
+  risk-score:
+    description: Aggregate risk score from 0 through 100.
+    value: ${{ steps.risk.outputs.risk-score }}
+  risk-level:
+    description: Risk level: low, medium, or high.
+    value: ${{ steps.risk.outputs.risk-level }}
+  report:
+    description: Compact JSON report.
+    value: ${{ steps.risk.outputs.report }}
+
+runs:
+  using: composite
+  steps:
+    - id: risk
+      shell: bash
+      env:
+        API_URL: ${{ inputs.api-url }}
+        REPOSITORY: ${{ inputs.repository }}
+        BASE: ${{ inputs.base }}
+        HEAD: ${{ inputs.head }}
+        PAYMENT_TX: ${{ inputs.payment-tx }}
+      run: |
+        set -euo pipefail
+        endpoint="$API_URL/v1/github-risk-delta"
+        args=(--get --data-urlencode "repo=$REPOSITORY" --data-urlencode "base=$BASE" --data-urlencode "head=$HEAD")
+        if [ -n "$PAYMENT_TX" ]; then
+          endpoint="$endpoint/full"
+          args+=(--data-urlencode "paymentTx=$PAYMENT_TX")
+        fi
+        report="$(curl --fail-with-body --silent --show-error "${args[@]}" "$endpoint")"
+        score="$(jq -er '.risk.score' <<<"$report")"
+        level="$(jq -er '.risk.level' <<<"$report")"
+        compact="$(jq -c . <<<"$report")"
+        {
+          echo "risk-score=$score"
+          echo "risk-level=$level"
+          echo "report=$compact"
+        } >> "$GITHUB_OUTPUT"
+        {
+          echo "## GitHub Change Risk"
+          echo
+          echo "- Score: **$score / 100**"
+          echo "- Level: **$level**"
+          echo
+          echo '```json'
+          jq '{comparison, risk}' <<<"$report"
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"

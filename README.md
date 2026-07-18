@@ -14,6 +14,21 @@ npm start
 curl 'http://127.0.0.1:4021/v1/github-risk-delta?repo=owner/repo&base=main&head=feature-branch'
 ```
 
+## GitHub Action
+
+Run the free summary report from a workflow without an API key:
+
+```yaml
+- uses: orangevakaris/github-change-risk-api@v1
+  id: change-risk
+  with:
+    repository: ${{ github.repository }}
+    base: ${{ github.event.before }}
+    head: ${{ github.sha }}
+```
+
+The action writes the score, level, and compact JSON report to outputs and adds a readable report to the workflow summary. Supply the optional `payment-tx` input only after sending a confirmed Base-USDC payment to request the per-file full report.
+
 The preview endpoint has the same routes over HTTPS. It is capped at 30 compare requests per client per minute and is provided for evaluation only while settlement is being configured.
 
 OpenAPI discovery document: `https://76.13.79.47.nip.io/openapi.json`
