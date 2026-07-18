@@ -4,6 +4,7 @@ export const landingHtml = `<!doctype html>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Deterministic risk signals for public GitHub compare ranges.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <title>GitHub Change Risk API</title>
     <style>
       :root { --ink: #16201f; --paper: #f4f0e5; --accent: #d5532f; --line: #3f514e; --muted: #687570; }

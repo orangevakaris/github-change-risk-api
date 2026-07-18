@@ -9,6 +9,7 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN || "";
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const REF = /^[A-Za-z0-9._/-]{1,200}$/;
 const requestWindows = new Map();
+const FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#16201f"/><path d="M14 18h36v8H22v10h23v8H22v12h-8z" fill="#d7edaa"/><circle cx="50" cy="46" r="6" fill="#d5532f"/></svg>';
 
 function send(response, status, body, headers = {}, headOnly = false) {
   response.writeHead(status, { "content-type": "application/json; charset=utf-8", ...headers });
@@ -22,6 +23,11 @@ function sendHtml(response, status, body, headOnly = false) {
     "x-content-type-options": "nosniff",
   });
   response.end(headOnly ? undefined : body);
+}
+
+function sendIcon(response, headOnly = false) {
+  response.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=604800" });
+  response.end(headOnly ? undefined : FAVICON);
 }
 
 export function parseCompareRequest(url) {
@@ -101,6 +107,9 @@ export const server = http.createServer(async (request, response) => {
   const readMethod = request.method === "GET" || headOnly;
   if (readMethod && url.pathname === "/") {
     return sendHtml(response, 200, landingHtml, headOnly);
+  }
+  if (readMethod && (url.pathname === "/favicon.svg" || url.pathname === "/favicon.ico")) {
+    return sendIcon(response, headOnly);
   }
   if (readMethod && url.pathname === "/health") {
     return send(response, 200, { status: "ok", service: "github-change-risk-api" }, {}, headOnly);
