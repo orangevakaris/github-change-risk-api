@@ -6,7 +6,7 @@ Licensed under [MIT](LICENSE). See [security reporting guidance](SECURITY.md) fo
 
 ## Current status
 
-The analysis engine and HTTP interface are implemented, tested, and available as a rate-limited preview at [76.13.79.47.nip.io](https://76.13.79.47.nip.io). Production x402 settlement is intentionally not claimed as live yet: it requires a facilitator credential.
+The analysis engine and HTTP interface are implemented, tested, and available as a rate-limited preview at [76.13.79.47.nip.io](https://76.13.79.47.nip.io). Per-file full reports are payable now through verified native-USDC transfers on Base.
 
 ## Local use
 
@@ -31,7 +31,7 @@ Run the free summary report from a workflow without an API key:
 
 The action writes the score, level, and compact JSON report to outputs and adds a readable report to the workflow summary. Supply the optional `payment-tx` input only after sending a confirmed Base-USDC payment to request the per-file full report.
 
-The preview endpoint has the same routes over HTTPS. It is capped at 30 compare requests per client per minute and is provided for evaluation only while settlement is being configured.
+The preview endpoint has the same routes over HTTPS. It is capped at 30 compare requests per client per minute and provides an aggregate report; the paid route returns the per-file report.
 
 OpenAPI discovery document: `https://76.13.79.47.nip.io/openapi.json`
 
@@ -57,6 +57,6 @@ The response reports changed-file counts, additions/deletions, a 0-100 heuristic
 
 This is triage data, not an audit or security certification. A low score does not establish that a change is safe.
 
-## Planned settlement
+## Payment protocol status
 
-The production route will be protected by standard x402 payment middleware on Base USDC and listed through a compatible discovery catalog. That integration is deliberately deferred until its settlement credentials and standalone HTTPS route are available.
+The direct Base-USDC route described above is the current production payment path. The API does not currently advertise x402 compatibility; any future payment-protocol integration will be documented only after it is deployed and verified.
