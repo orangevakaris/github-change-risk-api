@@ -16,6 +16,7 @@ export function paymentInstructions() {
     minimumBaseUnits: MINIMUM_USDC,
     confirmationsRequired: 3,
     onePaymentPerFullReport: true,
+    paymentLink: `ethereum:${BASE_USDC}@8453/transfer?address=${PAY_TO}&uint256=${MINIMUM_USDC}`,
   };
 }
 

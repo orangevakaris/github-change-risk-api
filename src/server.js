@@ -237,6 +237,7 @@ export const server = http.createServer(async (request, response) => {
         fullReportPrice: "0.01 USDC on Base",
         pricing: new URL("/pricing", externalOrigin).toString(),
         fullReport: fullEndpoint.toString(),
+        payment: paymentInstructions(),
       },
     });
   } catch (error) {

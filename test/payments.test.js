@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { BASE_USDC, MINIMUM_USDC, PAY_TO, createPaymentVerifier } from "../src/payments.js";
+import { BASE_USDC, MINIMUM_USDC, PAY_TO, createPaymentVerifier, paymentInstructions } from "../src/payments.js";
 
 const HASH = "0x" + "a".repeat(64);
 const recipientTopic = "0x" + "0".repeat(24) + PAY_TO.slice(2);
@@ -37,4 +37,11 @@ test("rejects payment logs below the minimum amount", async () => {
     persist: () => {},
   });
   assert.deepEqual(await verifier.reserve(HASH), { status: "unverified" });
+});
+
+test("publishes an exact Base-USDC payment link", () => {
+  assert.equal(
+    paymentInstructions().paymentLink,
+    `ethereum:${BASE_USDC}@8453/transfer?address=${PAY_TO}&uint256=${MINIMUM_USDC}`,
+  );
 });
