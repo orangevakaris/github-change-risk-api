@@ -4,6 +4,11 @@ export const landingHtml = `<!doctype html>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Deterministic risk signals for public GitHub compare ranges.">
+    <link rel="canonical" href="https://76.13.79.47.nip.io/">
+    <meta property="og:title" content="GitHub Change Risk API">
+    <meta property="og:description" content="Deterministic, explainable review cues for public GitHub compare ranges.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://76.13.79.47.nip.io/">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <title>GitHub Change Risk API</title>
     <style>
@@ -52,7 +57,7 @@ export const landingHtml = `<!doctype html>
       </div>
       <section class="call"><div class="tag">Try it</div><h2>Compare two public refs.</h2><p>Enter a public repository and two refs to get an aggregate preview. Nothing is cloned or executed.</p><form class="try-form" id="compare-form"><label>Repository<input id="repository" name="repository" placeholder="owner/repository" pattern="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+" required></label><label>Base ref<input id="base" name="base" placeholder="main" pattern="[A-Za-z0-9._/-]{1,200}" required></label><label>Head ref<input id="head" name="head" placeholder="feature-branch" pattern="[A-Za-z0-9._/-]{1,200}" required></label><button id="compare-button" type="submit">Analyze</button></form><p class="result-status" id="result-status" aria-live="polite">Free preview. Public repositories only.</p><pre class="result" id="result" hidden></pre><div class="unlock" id="unlock" hidden><div class="tag">Per-file report / 0.01 USDC</div><p>1. <a class="payment-link" id="payment-link" href="#">Send the exact Base-USDC payment</a> in a compatible wallet. 2. Wait for three confirmations. 3. Paste that transaction hash below.</p><form class="unlock-form" id="full-form"><label>Confirmed transaction hash<input id="payment-tx" name="payment-tx" placeholder="0x..." pattern="0x[a-fA-F0-9]{64}" required></label><button id="full-button" type="submit">Unlock report</button></form></div><code>GET /v1/github-risk-delta?repo=OWNER/REPOSITORY&amp;base=REF&amp;head=REF</code><p><a href="/openapi.json">OpenAPI document</a> · <a href="https://github.com/orangevakaris/github-change-risk-api">Source and limits</a></p></section>
       <section class="call"><div class="tag">Full report / 0.01 USDC</div><h2>Get per-file review cues.</h2><p>Send at least 0.01 native USDC on Base to <code>0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7</code>. <a href="ethereum:0x833589fCD6EDb6E08f4c7C32D4f71b54bda02913@8453/transfer?address=0x5157E1783c81DA37DAa8Bb490c68b30aB0e9D3A7&amp;uint256=10000">Open a pre-filled USDC transfer</a> in a compatible wallet and confirm the destination. After three confirmations, add the transaction hash as <code>paymentTx</code> to the full-report route. One payment funds one report.</p><code>GET /v1/github-risk-delta/full?repo=OWNER/REPOSITORY&amp;base=REF&amp;head=REF&amp;paymentTx=0x...</code><p><a href="/pricing">Payment requirements</a></p></section>
-      <footer>Preview endpoint. Preview and payment-step event payloads omit repository and ref values. Output is deterministic and explainable; it is not investment, security, or compliance advice.</footer>
+      <footer>Preview endpoint. Preview and payment-step event payloads omit repository and ref values. Public bots are directed to this page and away from live report routes. Output is deterministic and explainable; it is not investment, security, or compliance advice.</footer>
     </main>
     <script>
       const form = document.querySelector("#compare-form");

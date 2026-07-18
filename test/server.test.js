@@ -24,6 +24,14 @@ test("allows browser reads on public routes", async (context) => {
   assert.match(landing.headers.get("content-security-policy"), /connect-src 'self'/);
   assert.match(landing.headers.get("content-security-policy"), /script-src 'unsafe-inline'/);
 
+  const robots = await fetch(`http://127.0.0.1:${port}/robots.txt`);
+  assert.equal(robots.headers.get("content-type"), "text/plain; charset=utf-8");
+  assert.match(await robots.text(), /Disallow: \/v1\//);
+
+  const sitemap = await fetch(`http://127.0.0.1:${port}/sitemap.xml`);
+  assert.equal(sitemap.headers.get("content-type"), "application/xml; charset=utf-8");
+  assert.match(await sitemap.text(), /76\.13\.79\.47\.nip\.io/);
+
   const preflight = await fetch(`http://127.0.0.1:${port}/v1/github-risk-delta`, { method: "OPTIONS" });
   assert.equal(preflight.status, 204);
   assert.equal(preflight.headers.get("access-control-allow-methods"), "GET, HEAD, OPTIONS");

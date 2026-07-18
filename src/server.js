@@ -12,6 +12,9 @@ const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const REF = /^[A-Za-z0-9._/-]{1,200}$/;
 const requestWindows = new Map();
 const FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#16201f"/><path d="M14 18h36v8H22v10h23v8H22v12h-8z" fill="#d7edaa"/><circle cx="50" cy="46" r="6" fill="#d5532f"/></svg>';
+const PUBLIC_ORIGIN = "https://76.13.79.47.nip.io";
+const ROBOTS = `User-agent: *\nAllow: /\nDisallow: /v1/\nSitemap: ${PUBLIC_ORIGIN}/sitemap.xml\n`;
+const SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${PUBLIC_ORIGIN}/</loc></url></urlset>\n`;
 const BASE_RPC = "https://mainnet.base.org";
 const PAYMENT_STATE_PATH = "/root/.github-change-risk-api-payments.json";
 const DELIVERY_LOG_PATH = "/root/.github-change-risk-api-deliveries.jsonl";
@@ -42,6 +45,11 @@ function sendIcon(response, headOnly = false) {
 function sendEmpty(response, status, headers = {}) {
   response.writeHead(status, { "cache-control": "no-store", ...headers });
   response.end();
+}
+
+function sendText(response, status, body, contentType, headOnly = false) {
+  response.writeHead(status, { "content-type": contentType, "cache-control": "public, max-age=3600" });
+  response.end(headOnly ? undefined : body);
 }
 
 export function parseCompareRequest(url) {
@@ -190,6 +198,12 @@ export const server = http.createServer(async (request, response) => {
   }
   if (readMethod && (url.pathname === "/favicon.svg" || url.pathname === "/favicon.ico")) {
     return sendIcon(response, headOnly);
+  }
+  if (readMethod && url.pathname === "/robots.txt") {
+    return sendText(response, 200, ROBOTS, "text/plain; charset=utf-8", headOnly);
+  }
+  if (readMethod && url.pathname === "/sitemap.xml") {
+    return sendText(response, 200, SITEMAP, "application/xml; charset=utf-8", headOnly);
   }
   if (readMethod && url.pathname === "/health") {
     return send(response, 200, { status: "ok", service: "github-change-risk-api" }, {}, headOnly);

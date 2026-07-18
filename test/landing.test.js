@@ -17,4 +17,6 @@ test("documents the live API route and preview boundary", () => {
   assert.match(landingHtml, /recordEvent\("preview-ready"\)/);
   assert.match(landingHtml, /recordEvent\("payment-intent"\)/);
   assert.match(landingHtml, /event payloads omit repository and ref values/i);
+  assert.match(landingHtml, /rel="canonical"/);
+  assert.match(landingHtml, /property="og:title"/);
 });
