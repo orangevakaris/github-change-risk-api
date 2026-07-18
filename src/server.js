@@ -4,6 +4,7 @@ import { analyzeCompare } from "./analyze.js";
 
 const PORT = Number(process.env.PORT || 4021);
 const MAX_REQUESTS_PER_MINUTE = Number(process.env.MAX_REQUESTS_PER_MINUTE || 30);
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || "";
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const REF = /^[A-Za-z0-9._/-]{1,200}$/;
 const requestWindows = new Map();
@@ -50,6 +51,7 @@ async function githubCompare({ repository, base, head }) {
     headers: {
       accept: "application/vnd.github+json",
       "user-agent": "GitHubChangeRiskAPI/0.1",
+      ...(GITHUB_TOKEN ? { authorization: `Bearer ${GITHUB_TOKEN}` } : {}),
     },
   });
   if (!response.ok) {
