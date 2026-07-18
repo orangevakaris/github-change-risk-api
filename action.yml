@@ -27,7 +27,7 @@ outputs:
     description: Aggregate risk score from 0 through 100.
     value: ${{ steps.risk.outputs.risk-score }}
   risk-level:
-    description: Risk level: low, medium, or high.
+    description: "Risk level: low, medium, or high."
     value: ${{ steps.risk.outputs.risk-level }}
   report:
     description: Compact JSON report.
