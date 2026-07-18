@@ -4,7 +4,7 @@
 
 ## Current status
 
-The analysis engine and HTTP interface are implemented, tested, and available as a rate-limited preview at `https://76.13.79.47.nip.io`. Production x402 settlement is intentionally not claimed as live yet: it requires a facilitator credential.
+The analysis engine and HTTP interface are implemented, tested, and available as a rate-limited preview at [76.13.79.47.nip.io](https://76.13.79.47.nip.io). Production x402 settlement is intentionally not claimed as live yet: it requires a facilitator credential.
 
 ## Local use
 

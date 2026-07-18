@@ -1,6 +1,7 @@
 import http from "node:http";
 import { URL } from "node:url";
 import { analyzeCompare } from "./analyze.js";
+import { landingHtml } from "./landing.js";
 
 const PORT = Number(process.env.PORT || 4021);
 const MAX_REQUESTS_PER_MINUTE = Number(process.env.MAX_REQUESTS_PER_MINUTE || 30);
@@ -12,6 +13,15 @@ const requestWindows = new Map();
 function send(response, status, body, headers = {}) {
   response.writeHead(status, { "content-type": "application/json; charset=utf-8", ...headers });
   response.end(JSON.stringify(body, null, 2));
+}
+
+function sendHtml(response, status, body) {
+  response.writeHead(status, {
+    "content-type": "text/html; charset=utf-8",
+    "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'",
+    "x-content-type-options": "nosniff",
+  });
+  response.end(body);
 }
 
 export function parseCompareRequest(url) {
@@ -87,6 +97,9 @@ const OPENAPI = {
 
 export const server = http.createServer(async (request, response) => {
   const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
+  if (request.method === "GET" && url.pathname === "/") {
+    return sendHtml(response, 200, landingHtml);
+  }
   if (request.method === "GET" && url.pathname === "/health") {
     return send(response, 200, { status: "ok", service: "github-change-risk-api" });
   }
