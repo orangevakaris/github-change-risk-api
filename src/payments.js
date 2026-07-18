@@ -67,15 +67,17 @@ export function createPaymentVerifier({ rpc, consumed, persist }) {
     if (pending.has(hash)) return { status: "pending" };
     const receipt = await rpc("eth_getTransactionReceipt", [hash]);
     if (!receipt || receipt.status !== "0x1") return { status: "unverified" };
+    let asset = "usdc";
     if (!validUsdcTransfer(receipt)) {
       const transaction = await rpc("eth_getTransactionByHash", [hash]);
       if (!validNativeEthTransfer(transaction)) return { status: "unverified" };
+      asset = "eth";
     }
     const latestBlock = BigInt(await rpc("eth_blockNumber", []));
     const receiptBlock = BigInt(String(receipt.blockNumber));
     if (latestBlock - receiptBlock + 1n < 3n) return { status: "unconfirmed" };
     pending.add(hash);
-    return { status: "reserved", hash };
+    return { status: "reserved", hash, asset };
   }
 
   function release(hash) {

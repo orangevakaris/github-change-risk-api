@@ -118,7 +118,7 @@ export const landingHtml = `<!doctype html>
         const params = new URLSearchParams(activeParams);
         params.set("paymentTx", new FormData(fullForm).get("payment-tx").trim());
         fullButton.disabled = true;
-        status.textContent = "Verifying the Base-USDC payment and preparing the full report...";
+        status.textContent = "Verifying the Base payment and preparing the full report...";
         try {
           const response = await fetch("/v1/github-risk-delta/full?" + params);
           const payload = await response.json();

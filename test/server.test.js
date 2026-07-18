@@ -32,6 +32,15 @@ test("allows browser reads on public routes", async (context) => {
   assert.equal(sitemap.headers.get("content-type"), "application/xml; charset=utf-8");
   assert.match(await sitemap.text(), /76\.13\.79\.47\.nip\.io/);
 
+  const pricing = await fetch(`http://127.0.0.1:${port}/pricing`);
+  const pricingPayload = await pricing.json();
+  assert.equal(pricingPayload.fullReport.minimumAmount, "0.01 USDC");
+  assert.equal(pricingPayload.fullReport.nativeEth.minimumAmount, "0.00001 ETH");
+
+  const unpaidFullReport = await fetch(`http://127.0.0.1:${port}/v1/github-risk-delta/full?repo=octocat/Hello-World&base=master&head=master`);
+  assert.equal(unpaidFullReport.status, 402);
+  assert.equal((await unpaidFullReport.json()).error, "Base USDC or ETH payment required");
+
   const preflight = await fetch(`http://127.0.0.1:${port}/v1/github-risk-delta`, { method: "OPTIONS" });
   assert.equal(preflight.status, 204);
   assert.equal(preflight.headers.get("access-control-allow-methods"), "GET, HEAD, OPTIONS");

@@ -109,10 +109,10 @@ function saveConsumedPayments(transactions) {
   chmodSync(PAYMENT_STATE_PATH, 0o600);
 }
 
-function recordDelivery({ repository, base, head, paymentHash }) {
+function recordDelivery({ repository, base, head, paymentHash, paymentAsset }) {
   appendFileSync(
     DELIVERY_LOG_PATH,
-    `${JSON.stringify({ deliveredAt: new Date().toISOString(), repository, base, head, paymentHash })}\n`,
+    `${JSON.stringify({ deliveredAt: new Date().toISOString(), repository, base, head, paymentHash, paymentAsset })}\n`,
     { mode: 0o600 },
   );
   chmodSync(DELIVERY_LOG_PATH, 0o600);
@@ -166,7 +166,7 @@ const OPENAPI = {
           { name: "head", in: "query", required: true, schema: { type: "string" } },
           { name: "paymentTx", in: "query", required: true, schema: { type: "string", pattern: "0x[a-fA-F0-9]{64}" } },
         ],
-        responses: { "200": { description: "Paid full risk report" }, "402": { description: "Base USDC payment required" }, "409": { description: "Payment transaction already used" } },
+        responses: { "200": { description: "Paid full risk report" }, "402": { description: "Confirmed Base USDC or ETH payment required" }, "409": { description: "Payment transaction already used" } },
       },
     },
   },
@@ -229,7 +229,7 @@ export const server = http.createServer(async (request, response) => {
   const fullReport = url.pathname === "/v1/github-risk-delta/full";
   if (fullReport) {
     const paymentTx = url.searchParams.get("paymentTx");
-    if (!paymentTx) return send(response, 402, { error: "Base USDC payment required", payment: paymentInstructions() });
+    if (!paymentTx) return send(response, 402, { error: "Base USDC or ETH payment required", payment: paymentInstructions() });
     let reservation;
     try {
       reservation = await payments.reserve(paymentTx);
@@ -242,9 +242,9 @@ export const server = http.createServer(async (request, response) => {
     try {
       const comparison = await githubCompare(query);
       const report = fullCompareReport(comparison);
-      recordDelivery({ ...query, paymentHash: reservation.hash });
+      recordDelivery({ ...query, paymentHash: reservation.hash, paymentAsset: reservation.asset });
       payments.consume(reservation.hash);
-      return send(response, 200, { repository: query.repository, paid: true, ...report });
+      return send(response, 200, { repository: query.repository, paid: true, paymentAsset: reservation.asset, ...report });
     } catch (error) {
       payments.release(reservation.hash);
       return send(response, 502, { error: "comparison unavailable", detail: error.message });

@@ -22,7 +22,7 @@ test("reserves and permanently consumes a valid USDC payment once", async () => 
   let saved = [];
   const verifier = createPaymentVerifier({ rpc, consumed: [], persist: (transactions) => { saved = transactions; } });
   const reservation = await verifier.reserve(HASH);
-  assert.deepEqual(reservation, { status: "reserved", hash: HASH });
+  assert.deepEqual(reservation, { status: "reserved", hash: HASH, asset: "usdc" });
   verifier.consume(HASH);
   assert.deepEqual(saved, [HASH]);
   assert.deepEqual(await verifier.reserve(HASH), { status: "used" });
@@ -58,5 +58,5 @@ test("reserves a confirmed native ETH transfer to the payment wallet", async () 
     consumed: [],
     persist: () => {},
   });
-  assert.deepEqual(await verifier.reserve(HASH), { status: "reserved", hash: HASH });
+  assert.deepEqual(await verifier.reserve(HASH), { status: "reserved", hash: HASH, asset: "eth" });
 });
