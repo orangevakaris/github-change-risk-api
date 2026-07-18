@@ -6,7 +6,7 @@ test("scores access, funds, deployment, and large untested changes", () => {
   const report = analyzeCompare({
     total_commits: 4,
     base_commit: { sha: "base" },
-    head_commit: { sha: "head" },
+    requestedHead: "head",
     files: [
       { filename: "src/auth/session.js", additions: 120, deletions: 20 },
       { filename: "contracts/escrow.sol", additions: 80, deletions: 0 },
@@ -15,8 +15,18 @@ test("scores access, funds, deployment, and large untested changes", () => {
     ],
   });
   assert.equal(report.risk.level, "high");
+  assert.equal(report.comparison.head, "head");
   assert.deepEqual(report.risk.signals.map((signal) => signal.id), ["auth-access", "funds-contracts", "deployment", "ci"]);
   assert.match(report.risk.testCoverageSignal, /Low test-file coverage/);
+});
+
+test("uses GitHub's final compared commit when it is available", () => {
+  const report = analyzeCompare({
+    requestedHead: "branch-name",
+    commits: [{ sha: "first" }, { sha: "resolved-head" }],
+    files: [],
+  });
+  assert.equal(report.comparison.head, "resolved-head");
 });
 
 test("keeps documentation-only changes low risk", () => {

@@ -58,7 +58,12 @@ async function githubCompare({ repository, base, head }) {
     throw new Error(`GitHub compare request failed with status ${response.status}`);
   }
   const payload = await response.json();
-  return { ...payload, files_truncated: Array.isArray(payload.files) && payload.files.length >= 300 };
+  return {
+    ...payload,
+    files_truncated: Array.isArray(payload.files) && payload.files.length >= 300,
+    requestedBase: base,
+    requestedHead: head,
+  };
 }
 
 const OPENAPI = {

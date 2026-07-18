@@ -75,8 +75,8 @@ export function analyzeCompare(compare) {
 
   return {
     comparison: {
-      base: compare.base_commit?.sha || null,
-      head: compare.merge_base_commit?.sha || compare.head_commit?.sha || null,
+      base: compare.base_commit?.sha || compare.requestedBase || null,
+      head: compare.commits?.at(-1)?.sha || compare.requestedHead || null,
       totalCommits: Number(compare.total_commits || 0),
       filesChanged: changedFiles.length,
       additions: files.reduce((sum, file) => sum + Number(file.additions || 0), 0),
