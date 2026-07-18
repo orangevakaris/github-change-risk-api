@@ -2,6 +2,8 @@
 
 `GitHub Change Risk API` returns deterministic, explainable risk signals for a public GitHub compare range. It does not execute repository code, inspect private repositories, or probe deployed targets.
 
+Licensed under [MIT](LICENSE). See [security reporting guidance](SECURITY.md) for private vulnerability reports.
+
 ## Current status
 
 The analysis engine and HTTP interface are implemented, tested, and available as a rate-limited preview at [76.13.79.47.nip.io](https://76.13.79.47.nip.io). Production x402 settlement is intentionally not claimed as live yet: it requires a facilitator credential.
