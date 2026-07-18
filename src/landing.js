@@ -4,11 +4,11 @@ export const landingHtml = `<!doctype html>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Deterministic risk signals for public GitHub compare ranges.">
-    <link rel="canonical" href="https://76.13.79.47.nip.io/">
+    <link rel="canonical" href="https://76.13.79.47.sslip.io/">
     <meta property="og:title" content="GitHub Change Risk API">
     <meta property="og:description" content="Deterministic, explainable review cues for public GitHub compare ranges.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://76.13.79.47.nip.io/">
+    <meta property="og:url" content="https://76.13.79.47.sslip.io/">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <title>GitHub Change Risk API</title>
     <style>

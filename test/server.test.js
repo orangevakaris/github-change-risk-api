@@ -30,7 +30,7 @@ test("allows browser reads on public routes", async (context) => {
 
   const sitemap = await fetch(`http://127.0.0.1:${port}/sitemap.xml`);
   assert.equal(sitemap.headers.get("content-type"), "application/xml; charset=utf-8");
-  assert.match(await sitemap.text(), /76\.13\.79\.47\.nip\.io/);
+  assert.match(await sitemap.text(), /76\.13\.79\.47\.sslip\.io/);
 
   const pricing = await fetch(`http://127.0.0.1:${port}/pricing`);
   const pricingPayload = await pricing.json();

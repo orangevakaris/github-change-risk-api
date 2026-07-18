@@ -12,7 +12,7 @@ const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const REF = /^[A-Za-z0-9._/-]{1,200}$/;
 const requestWindows = new Map();
 const FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#16201f"/><path d="M14 18h36v8H22v10h23v8H22v12h-8z" fill="#d7edaa"/><circle cx="50" cy="46" r="6" fill="#d5532f"/></svg>';
-const PUBLIC_ORIGIN = "https://76.13.79.47.nip.io";
+const PUBLIC_ORIGIN = "https://76.13.79.47.sslip.io";
 const ROBOTS = `User-agent: *\nAllow: /\nDisallow: /v1/\nSitemap: ${PUBLIC_ORIGIN}/sitemap.xml\n`;
 const SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${PUBLIC_ORIGIN}/</loc></url></urlset>\n`;
 const BASE_RPC = "https://mainnet.base.org";
@@ -144,7 +144,7 @@ async function githubCompare({ repository, base, head }) {
 const OPENAPI = {
   openapi: "3.1.0",
   info: { title: "GitHub Change Risk API", version: "0.1.0", description: "Deterministic risk signals for public GitHub compare ranges." },
-  servers: [{ url: "https://76.13.79.47.nip.io", description: "Rate-limited public preview" }],
+  servers: [{ url: "https://76.13.79.47.sslip.io", description: "Rate-limited public preview" }],
   paths: {
     "/v1/github-risk-delta": {
       get: {

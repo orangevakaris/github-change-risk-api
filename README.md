@@ -6,7 +6,7 @@ Licensed under [MIT](LICENSE). See [security reporting guidance](SECURITY.md) fo
 
 ## Current status
 
-The analysis engine and HTTP interface are implemented, tested, and available as a rate-limited preview at [76.13.79.47.nip.io](https://76.13.79.47.nip.io). Per-file full reports are payable now through verified native-USDC or native-ETH transfers on Base.
+The analysis engine and HTTP interface are implemented, tested, and available as a rate-limited preview at [76.13.79.47.sslip.io](https://76.13.79.47.sslip.io). Per-file full reports are payable now through verified native-USDC or native-ETH transfers on Base.
 
 ## Local use
 
@@ -33,7 +33,7 @@ The action writes the score, level, compact JSON report, and prefilled `checkout
 
 The preview endpoint has the same routes over HTTPS. It supports browser reads with permissive CORS, is capped at 30 compare requests per client per minute, and provides an aggregate report; the paid route returns the per-file report.
 
-OpenAPI discovery document: `https://76.13.79.47.nip.io/openapi.json`
+OpenAPI discovery document: `https://76.13.79.47.sslip.io/openapi.json`
 
 ## Full report payment
 

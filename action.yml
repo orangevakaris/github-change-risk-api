@@ -24,7 +24,7 @@ inputs:
   api-url:
     description: Base URL for the GitHub Change Risk API.
     required: false
-    default: https://76.13.79.47.nip.io
+    default: https://76.13.79.47.sslip.io
   comment:
     description: Post the aggregate report as a pull request comment when true.
     required: false
