@@ -75,6 +75,15 @@ export const landingHtml = `<!doctype html>
       const status = document.querySelector("#result-status");
       const result = document.querySelector("#result");
       let activeParams;
+      const preset = new URLSearchParams(window.location.search);
+      const presetFields = [["repository", "repo"], ["base", "base"], ["head", "head"]];
+      for (const [inputId, parameter] of presetFields) {
+        const value = preset.get(parameter);
+        if (value) document.querySelector("#" + inputId).value = value;
+      }
+      if (presetFields.every(([, parameter]) => preset.get(parameter))) {
+        status.textContent = "Comparison values prefilled from the workflow link. Review them, then analyze.";
+      }
       function recordEvent(name) {
         if (navigator.sendBeacon) navigator.sendBeacon("/v1/events/" + name, "");
       }

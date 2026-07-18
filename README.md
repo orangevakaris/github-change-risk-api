@@ -29,7 +29,7 @@ Run the free summary report from a workflow without an API key:
     head: ${{ github.sha }}
 ```
 
-The action writes the score, level, and compact JSON report to outputs and adds a readable report to the workflow summary. Supply the optional `payment-tx` input only after sending a confirmed Base USDC or ETH payment to request the per-file full report.
+The action writes the score, level, compact JSON report, and prefilled `checkout-url` to outputs and adds a readable report to the workflow summary. Supply the optional `payment-tx` input only after sending a confirmed Base USDC or ETH payment to request the per-file full report.
 
 The preview endpoint has the same routes over HTTPS. It supports browser reads with permissive CORS, is capped at 30 compare requests per client per minute, and provides an aggregate report; the paid route returns the per-file report.
 

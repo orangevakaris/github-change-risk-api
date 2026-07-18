@@ -18,6 +18,8 @@ test("documents the live API route and preview boundary", () => {
   assert.match(landingHtml, /fetch\("\/v1\/github-risk-delta\/full\?" \+ params\)/);
   assert.match(landingHtml, /recordEvent\("preview-ready"\)/);
   assert.match(landingHtml, /recordEvent\("payment-intent"\)/);
+  assert.match(landingHtml, /new URLSearchParams\(window\.location\.search\)/);
+  assert.match(landingHtml, /Comparison values prefilled from the workflow link/);
   assert.match(landingHtml, /event payloads omit repository and ref values/i);
   assert.match(landingHtml, /rel="canonical"/);
   assert.match(landingHtml, /property="og:title"/);

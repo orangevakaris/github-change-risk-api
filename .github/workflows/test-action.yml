@@ -22,6 +22,8 @@ jobs:
       - env:
           SCORE: ${{ steps.risk.outputs.risk-score }}
           LEVEL: ${{ steps.risk.outputs.risk-level }}
+          CHECKOUT_URL: ${{ steps.risk.outputs.checkout-url }}
         run: |
           test "$SCORE" = "0"
           test "$LEVEL" = "low"
+          test "$CHECKOUT_URL" = "https://76.13.79.47.nip.io/?repo=octocat%2FHello-World&base=master&head=master"

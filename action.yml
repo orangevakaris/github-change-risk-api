@@ -1,5 +1,5 @@
 name: GitHub Change Risk
-description: Fetch deterministic risk signals for a public GitHub compare range.
+description: Summarize deterministic risk signals for a public GitHub compare range.
 author: Orange Vakaris
 
 inputs:
@@ -14,13 +14,25 @@ inputs:
     description: Head commit SHA or ref.
     required: true
   payment-tx:
-    description: Optional confirmed Base-USDC transaction hash for a paid full report.
+    description: Optional confirmed Base USDC or ETH transaction hash for a per-file report.
     required: false
     default: ""
   api-url:
     description: Base URL for the GitHub Change Risk API.
     required: false
     default: https://76.13.79.47.nip.io
+  comment:
+    description: Post the aggregate report as a pull request comment when true.
+    required: false
+    default: "false"
+  github-token:
+    description: GitHub token with pull-requests write permission when commenting.
+    required: false
+    default: ""
+  pull-request-number:
+    description: Pull request number to comment on when comment is true.
+    required: false
+    default: ""
 
 outputs:
   risk-score:
@@ -32,6 +44,13 @@ outputs:
   report:
     description: Compact JSON report.
     value: ${{ steps.risk.outputs.report }}
+  checkout-url:
+    description: Prefilled landing-page URL for the selected public comparison.
+    value: ${{ steps.risk.outputs.checkout-url }}
+
+branding:
+  icon: shield
+  color: orange
 
 runs:
   using: composite
@@ -44,6 +63,9 @@ runs:
         BASE: ${{ inputs.base }}
         HEAD: ${{ inputs.head }}
         PAYMENT_TX: ${{ inputs.payment-tx }}
+        COMMENT: ${{ inputs.comment }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        PULL_REQUEST_NUMBER: ${{ inputs.pull-request-number }}
       run: |
         set -euo pipefail
         endpoint="$API_URL/v1/github-risk-delta"
@@ -56,10 +78,14 @@ runs:
         score="$(jq -er '.risk.score' <<<"$report")"
         level="$(jq -er '.risk.level' <<<"$report")"
         compact="$(jq -c . <<<"$report")"
+        pricing_url="${API_URL%/}/pricing"
+        checkout_query="$(jq -rn --arg repo "$REPOSITORY" --arg base "$BASE" --arg head "$HEAD" '$ARGS.named | to_entries | map(.key + "=" + (.value | @uri)) | join("&")')"
+        checkout_url="${API_URL%/}/?$checkout_query"
         {
           echo "risk-score=$score"
           echo "risk-level=$level"
           echo "report=$compact"
+          echo "checkout-url=$checkout_url"
         } >> "$GITHUB_OUTPUT"
         {
           echo "## GitHub Change Risk"
@@ -70,4 +96,17 @@ runs:
           echo '```json'
           jq '{comparison, risk}' <<<"$report"
           echo '```'
+          if [ -z "$PAYMENT_TX" ]; then
+            echo
+            echo "Need the per-file report? [Open the prefilled Base payment flow]($checkout_url) (0.01 USDC or 0.00001 ETH)."
+            echo "[Payment requirements]($pricing_url)"
+          fi
         } >> "$GITHUB_STEP_SUMMARY"
+        if [ "$COMMENT" = "true" ]; then
+          if [ -z "$GH_TOKEN" ] || [ -z "$PULL_REQUEST_NUMBER" ]; then
+            echo "github-token and pull-request-number are required when comment is true" >&2
+            exit 1
+          fi
+          comment_body="$(printf '## GitHub Change Risk\n\n- Score: **%s / 100**\n- Level: **%s**\n\n```json\n%s\n```' "$score" "$level" "$(jq -c '{comparison, risk}' <<<"$report")")"
+          gh api --method POST "repos/$REPOSITORY/issues/$PULL_REQUEST_NUMBER/comments" -f body="$comment_body" >/dev/null
+        fi
