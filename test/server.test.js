@@ -27,4 +27,8 @@ test("allows browser reads on public routes", async (context) => {
   const preflight = await fetch(`http://127.0.0.1:${port}/v1/github-risk-delta`, { method: "OPTIONS" });
   assert.equal(preflight.status, 204);
   assert.equal(preflight.headers.get("access-control-allow-methods"), "GET, HEAD, OPTIONS");
+
+  const event = await fetch(`http://127.0.0.1:${port}/v1/events/preview-ready`, { method: "POST" });
+  assert.equal(event.status, 204);
+  assert.equal(event.headers.get("cache-control"), "no-store");
 });

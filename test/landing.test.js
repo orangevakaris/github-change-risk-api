@@ -14,4 +14,7 @@ test("documents the live API route and preview boundary", () => {
   assert.match(landingHtml, /id="full-form"/);
   assert.match(landingHtml, /paymentLink\.href = payload\.upgrade\.payment\.paymentLink/);
   assert.match(landingHtml, /fetch\("\/v1\/github-risk-delta\/full\?" \+ params\)/);
+  assert.match(landingHtml, /recordEvent\("preview-ready"\)/);
+  assert.match(landingHtml, /recordEvent\("payment-intent"\)/);
+  assert.match(landingHtml, /event payloads omit repository and ref values/i);
 });

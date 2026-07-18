@@ -57,6 +57,10 @@ The response reports changed-file counts, additions/deletions, a 0-100 heuristic
 
 This is triage data, not an audit or security certification. A low score does not establish that a change is safe.
 
+## Minimal funnel telemetry
+
+The landing page posts `preview-ready` and `payment-intent` event names to the same origin for aggregate operational counts. The event payloads do not include repository names, refs, transaction hashes, wallet addresses, or browser identifiers.
+
 ## Payment protocol status
 
 The direct Base-USDC route described above is the current production payment path. The API does not currently advertise x402 compatibility; any future payment-protocol integration will be documented only after it is deployed and verified.

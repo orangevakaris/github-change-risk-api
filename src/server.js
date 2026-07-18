@@ -39,6 +39,11 @@ function sendIcon(response, headOnly = false) {
   response.end(headOnly ? undefined : FAVICON);
 }
 
+function sendEmpty(response, status, headers = {}) {
+  response.writeHead(status, { "cache-control": "no-store", ...headers });
+  response.end();
+}
+
 export function parseCompareRequest(url) {
   const repository = url.searchParams.get("repo") || "";
   const base = url.searchParams.get("base") || "";
@@ -172,6 +177,13 @@ export const server = http.createServer(async (request, response) => {
       "access-control-max-age": "86400",
     });
     return response.end();
+  }
+  if (
+    request.method === "POST"
+    && (url.pathname === "/v1/events/preview-ready" || url.pathname === "/v1/events/payment-intent")
+  ) {
+    request.resume();
+    return sendEmpty(response, 204);
   }
   if (readMethod && url.pathname === "/") {
     return sendHtml(response, 200, landingHtml, headOnly);
